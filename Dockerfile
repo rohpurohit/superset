@@ -18,11 +18,11 @@
 ######################################################################
 # Node stage to deal with static asset construction
 ######################################################################
-ARG PY_VER=3.10-slim-bookworm
+ARG PY_VER=3.10-alpine
 
 # if BUILDPLATFORM is null, set it to 'amd64' (or leave as is otherwise).
 ARG BUILDPLATFORM=${BUILDPLATFORM:-amd64}
-FROM --platform=${BUILDPLATFORM} node:20-bullseye-slim AS superset-node
+FROM --platform=${BUILDPLATFORM} node:20-alpine AS superset-node
 
 ARG NPM_BUILD_CMD="build"
 
@@ -38,17 +38,14 @@ ARG DEV_MODE="false"
 ARG INCLUDE_CHROMIUM="true"
 ARG INCLUDE_FIREFOX="false"
 
-# Somehow we need python3 + build-essential on this side of the house to install node-gyp
-RUN apt-get update -qq \
-    && apt-get install \
-        -yqq --no-install-recommends \
-        build-essential \
-        python3 \
-        zstd
+# Install necessary packages
+RUN apk add --no-cache \
+    build-base \
+    python3 \
+    zstd
 
 ENV BUILD_CMD=${NPM_BUILD_CMD} \
     PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-# NPM ci first, as to NOT invalidate previous steps except for when package.json changes
 
 RUN --mount=type=bind,target=/frontend-mem-nag.sh,src=./docker/frontend-mem-nag.sh \
     /frontend-mem-nag.sh
@@ -74,7 +71,6 @@ RUN if [ "$DEV_MODE" = "false" ]; then \
     else \
         echo "Skipping 'npm run ${BUILD_CMD}' in dev mode"; \
     fi
-
 
 # Compiles .json files from the .po files, then deletes the .po files
 RUN if [ "$BUILD_TRANSLATIONS" = "true" ]; then \
@@ -104,29 +100,28 @@ ENV LANG=C.UTF-8 \
     SUPERSET_PORT=8088
 
 RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache_superset.egg-info requirements \
-    && useradd --user-group -d ${SUPERSET_HOME} -m --no-log-init --shell /bin/bash superset \
-    && apt-get update -qq && apt-get install -yqq --no-install-recommends \
+    && addgroup -S superset \
+    && adduser -S superset -G superset \
+    && apk add --no-cache \
         curl \
         libsasl2-dev \
-        libsasl2-modules-gssapi-mit \
-        libpq-dev \
-        libecpg-dev \
-        libldap2-dev \
+        postgresql-dev \
+        openldap-dev \
     && touch superset/static/version_info.json \
     && chown -R superset:superset ./* \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/cache/apk/*
 
 COPY --chown=superset:superset pyproject.toml setup.py MANIFEST.in README.md ./
 # setup.py uses the version information in package.json
 COPY --chown=superset:superset superset-frontend/package.json superset-frontend/
 COPY --chown=superset:superset requirements/base.txt requirements/
 RUN --mount=type=cache,target=/root/.cache/pip \
-    apt-get update -qq && apt-get install -yqq --no-install-recommends \
-      build-essential \
+    apk add --no-cache \
+      build-base \
     && pip install --no-cache-dir --upgrade setuptools pip \
     && pip install --no-cache-dir -r requirements/base.txt \
-    && apt-get autoremove -yqq --purge build-essential \
-    && rm -rf /var/lib/apt/lists/*
+    && apk del build-base \
+    && rm -rf /var/cache/apk/*
 
 # Copy the compiled frontend assets
 COPY --chown=superset:superset --from=superset-node /app/superset/static/assets superset/static/assets
@@ -165,17 +160,15 @@ CMD ["/usr/bin/run-server.sh"]
 FROM lean AS dev
 
 USER root
-RUN apt-get update -qq \
-    && apt-get install -yqq --no-install-recommends \
+RUN apk add --no-cache \
         libnss3 \
-        libdbus-glib-1-2 \
-        libgtk-3-0 \
-        libx11-xcb1 \
-        libasound2 \
-        libxtst6 \
+        dbus-glib \
+        gtk+3.0 \
+        libx11-xcb \
+        alsa-lib \
+        libxtst \
         git \
-        pkg-config \
-        && rm -rf /var/lib/apt/lists/*
+        pkgconfig
 
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --no-cache-dir playwright
@@ -192,26 +185,26 @@ ARG GECKODRIVER_VERSION=v0.34.0 \
     FIREFOX_VERSION=125.0.3
 
 RUN if [ "$INCLUDE_FIREFOX" = "true" ]; then \
-        apt-get update -qq \
-        && apt-get install -yqq --no-install-recommends wget bzip2 \
+        apk add --no-cache \
+        wget \
+        bzip2 \
         && wget -q https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-${GECKODRIVER_VERSION}-linux64.tar.gz -O - | tar xfz - -C /usr/local/bin \
         && wget -q https://download-installer.cdn.mozilla.net/pub/firefox/releases/${FIREFOX_VERSION}/linux-x86_64/en-US/firefox-${FIREFOX_VERSION}.tar.bz2 -O - | tar xfj - -C /opt \
         && ln -s /opt/firefox/firefox /usr/local/bin/firefox \
-        && apt-get autoremove -yqq --purge wget bzip2 && rm -rf /var/[log,tmp]/* /tmp/* /var/lib/apt/lists/*; \
+        && apk del wget bzip2 && rm -rf /var/cache/apk/*; \
     fi
 
 # Installing mysql client os-level dependencies in dev image only because GPL
-RUN apt-get install -yqq --no-install-recommends \
-        default-libmysqlclient-dev \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache \
+        mysql-client
 
 COPY --chown=superset:superset requirements/development.txt requirements/
 RUN --mount=type=cache,target=/root/.cache/pip \
-    apt-get update -qq && apt-get install -yqq --no-install-recommends \
-      build-essential \
+    apk add --no-cache \
+      build-base \
     && pip install --no-cache-dir -r requirements/development.txt \
-    && apt-get autoremove -yqq --purge build-essential \
-    && rm -rf /var/lib/apt/lists/*
+    && apk del build-base \
+    && rm -rf /var/cache/apk/*
 
 USER superset
 ######################################################################
