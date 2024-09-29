@@ -32,17 +32,6 @@ export enum ResourceStatus {
  */
 export type Resource<T> = LoadingState | CompleteState<T> | ErrorState;
 
-// Trying out something a little different: a separate type per status.
-// This should let TypeScript know whether a Resource has a result or error.
-// It's possible that I'm expecting too much from TypeScript here.
-// If this ends up causing problems, we can change the type to:
-//
-// export type Resource<T> = {
-//   status: ResourceStatus;
-//   result: null | T;
-//   error: null | Error;
-// }
-
 type LoadingState = {
   status: ResourceStatus.Loading;
   result: null;
@@ -66,6 +55,8 @@ const initialState: LoadingState = {
   result: null,
   error: null,
 };
+
+const BASE_URL = `${window.location.protocol}//${window.location.host}/api/snowflake`;
 
 /**
  * A general-purpose hook to fetch the response from an endpoint.
@@ -91,12 +82,7 @@ export function useApiResourceFullBody<RESULT>(
   const cancelRef = useRef<() => void>(() => {});
 
   useEffect(() => {
-    // If refresh is implemented, this will need to change.
-    // The previous values should stay during refresh.
     setResource(initialState);
-
-    // when this effect runs, the endpoint has changed.
-    // cancel any current calls so that state doesn't get messed up.
     cancelRef.current();
     let cancelled = false;
     cancelRef.current = () => {
@@ -105,7 +91,7 @@ export function useApiResourceFullBody<RESULT>(
 
     const fetchResource = makeApi<{}, RESULT>({
       method: 'GET',
-      endpoint,
+      endpoint: `${BASE_URL}/${endpoint}`,
     });
 
     fetchResource({})
@@ -128,7 +114,6 @@ export function useApiResourceFullBody<RESULT>(
         }
       });
 
-    // Cancel the request when the component un-mounts
     return () => {
       cancelled = true;
     };
@@ -150,7 +135,6 @@ export function useTransformedResource<IN, OUT>(
 ): Resource<OUT> {
   return useMemo(() => {
     if (resource.status !== ResourceStatus.Complete) {
-      // While incomplete, there is no result - no need to transform.
       return resource;
     }
     try {
