@@ -69,6 +69,7 @@ class SnowflakeParametersType(TypedDict):
     database: str
     role: str
     warehouse: str
+    token: str
 
 
 class SnowflakeEngineSpec(PostgresBaseEngineSpec):
@@ -322,6 +323,7 @@ class SnowflakeEngineSpec(PostgresBaseEngineSpec):
             "database",
             "account",
             "role",
+            "token",
         }
         parameters = properties.get("parameters", {})
         present = {key for key in parameters if parameters.get(key, ())}
