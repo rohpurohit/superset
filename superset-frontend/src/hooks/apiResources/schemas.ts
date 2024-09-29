@@ -20,6 +20,7 @@ import { useCallback, useEffect } from 'react';
 import { ClientErrorObject } from '@superset-ui/core';
 import useEffectEvent from 'src/hooks/useEffectEvent';
 import { api, JsonResponse } from './queryApi';
+import { API_BASE_URL, API_KEY } from 'react-native-dotenv';
 
 export type SchemaOption = {
   value: string;
@@ -42,7 +43,7 @@ const schemaApi = api.injectEndpoints({
     schemas: builder.query<SchemaOption[], FetchSchemasQueryParams>({
       providesTags: [{ type: 'Schemas', id: 'LIST' }],
       query: ({ dbId, catalog, forceRefresh }) => ({
-        endpoint: `/api/v1/database/${dbId}/schemas/`,
+        endpoint: `${API_BASE_URL}/api/v1/database/${dbId}/schemas/`,
         // TODO: Would be nice to add pagination in a follow-up. Needs endpoint changes.
         urlParams: {
           force: forceRefresh,
