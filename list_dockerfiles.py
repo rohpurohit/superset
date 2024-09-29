@@ -1,15 +1,9 @@
 import os
 
-def list_dockerfiles(directory):
-    dockerfiles = []
-    for root, dirs, files in os.walk(directory):
-        for file in files:
-            if file == "Dockerfile":
-                dockerfiles.append(os.path.join(root, file))
-    return dockerfiles
-
-if __name__ == "__main__":
-    directory = "."  # Change this to the desired directory
-    dockerfiles = list_dockerfiles(directory)
+def list_dockerfiles():
+    dockerfiles = [f for f in os.listdir('.') if f.startswith('Dockerfile')]
     for dockerfile in dockerfiles:
         print(dockerfile)
+
+if __name__ == "__main__":
+    list_dockerfiles()
