@@ -16,6 +16,7 @@
 # under the License.
 import logging
 import re
+import os
 from datetime import datetime
 from re import Pattern
 from typing import Any, Optional, TYPE_CHECKING, TypedDict
@@ -57,8 +58,6 @@ logger = logging.getLogger(__name__)
 
 
 class SnowflakeParametersSchema(Schema):
-    username = fields.Str(required=True)
-    password = fields.Str(required=True)
     account = fields.Str(required=True)
     database = fields.Str(required=True)
     role = fields.Str(required=True)
@@ -66,8 +65,6 @@ class SnowflakeParametersSchema(Schema):
 
 
 class SnowflakeParametersType(TypedDict):
-    username: str
-    password: str
     account: str
     database: str
     role: str
@@ -242,7 +239,6 @@ class SnowflakeEngineSpec(PostgresBaseEngineSpec):
         connect_args = engine_params.get("connect_args", {})
         connect_args["validate_default_parameters"] = True
         engine_params["connect_args"] = connect_args
-        extra["engine_params"] = engine_params
         database.extra = json.dumps(extra)
 
     @classmethod
@@ -287,13 +283,13 @@ class SnowflakeEngineSpec(PostgresBaseEngineSpec):
         return str(
             URL.create(
                 "snowflake",
-                username=parameters.get("username"),
-                password=parameters.get("password"),
                 host=parameters.get("account"),
                 database=parameters.get("database"),
                 query={
                     "role": parameters.get("role"),
                     "warehouse": parameters.get("warehouse"),
+                    "auth": "oauth",
+                    "token": parameters.get("token"),
                 },
             )
         )
@@ -309,12 +305,11 @@ class SnowflakeEngineSpec(PostgresBaseEngineSpec):
         url = make_url_safe(uri)
         query = dict(url.query.items())
         return {
-            "username": url.username,
-            "password": url.password,
             "account": url.host,
             "database": url.database,
             "role": query.get("role"),
             "warehouse": query.get("warehouse"),
+            "token": query.get("token"),
         }
 
     @classmethod
@@ -324,11 +319,9 @@ class SnowflakeEngineSpec(PostgresBaseEngineSpec):
         errors: list[SupersetError] = []
         required = {
             "warehouse",
-            "username",
             "database",
             "account",
             "role",
-            "password",
         }
         parameters = properties.get("parameters", {})
         present = {key for key in parameters if parameters.get(key, ())}
