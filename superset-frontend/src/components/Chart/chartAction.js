@@ -126,7 +126,7 @@ const legacyChartDataRequest = async (
   const allowDomainSharding =
     // eslint-disable-next-line camelcase
     domainShardingEnabled && requestParams?.dashboard_id;
-  const url = getExploreUrl({
+  const url = `${window.location.origin}${getExploreUrl({
     formData,
     endpointType,
     force,
@@ -135,7 +135,7 @@ const legacyChartDataRequest = async (
     requestParams: requestParams.dashboard_id
       ? { dashboard_id: requestParams.dashboard_id }
       : {},
-  });
+  })}`;
   const querySettings = {
     ...requestParams,
     url,
@@ -184,11 +184,11 @@ const v1ChartDataRequest = async (
   const allowDomainSharding =
     // eslint-disable-next-line camelcase
     domainShardingEnabled && requestParams?.dashboard_id;
-  const url = getChartDataUri({
+  const url = `${window.location.origin}${getChartDataUri({
     path: '/api/v1/chart/data',
     qs,
     allowDomainSharding,
-  }).toString();
+  }).toString()}`;
 
   const querySettings = {
     ...requestParams,
@@ -296,7 +296,7 @@ export function runAnnotationQuery({
         : undefined;
     }
 
-    const url = getAnnotationJsonUrl(annotation.value, force);
+    const url = `${window.location.origin}${getAnnotationJsonUrl(annotation.value, force)}`;
     const controller = new AbortController();
     const { signal } = controller;
 
@@ -606,7 +606,7 @@ export const getDatasourceSamples = async (
     }
 
     const response = await SupersetClient.post({
-      endpoint: '/datasource/samples',
+      endpoint: `${window.location.origin}/datasource/samples`,
       jsonPayload,
       searchParams,
       parseMethod: 'json-bigint',
