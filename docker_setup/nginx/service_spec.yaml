@@ -1,0 +1,48 @@
+spec:
+  containers:
+    - name: db
+      image: /spcs_app/napp/img_repo/db:latest
+    - name : nginx
+      image: /spcs_app/napp/img_repo/nginx:latest
+    - name: redis
+      image: /spcs_app/napp/img_repo/redis:latest
+    - name: superset
+      image: /spcs_app/napp/img_repo/superset:latest
+    - name: supersetinit
+      image: /spcs_app/napp/img_repo/superset_init:latest
+    - name: supersetnode
+      image: /spcs_app/napp/img_repo/superset-node:latest
+    - name: supersettestsborker
+      image: /spcs_app/napp/img_repo/superset-tests-worker:latest
+    - name: supersetwebsocket
+      image: /spcs_app/napp/img_repo/superset-websocket:latest
+    - name: supersetworker
+      image: /spcs_app/napp/img_repo/superset-worker:latest
+    - name: supersetworkerbeat
+      image: /spcs_app/napp/img_repo/superset-worker-beat:latest
+  endpoints:
+    - name: db
+      port: 5432
+      public: true
+    - name: nginx
+      port: 80
+      public: true
+    - name: redis
+      port: 6379
+      public: true
+    - name: superset
+      port: 8088
+      public: true
+    - name: superset-websocket
+      port: 8080
+      public: true
+    
+  
+serviceRoles: # Optional list of service roles
+  - name: sfn_service_role
+    endpoints:
+      - db
+      - nginx
+      - redis
+      - superset
+      - superset-websocket
