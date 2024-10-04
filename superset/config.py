@@ -187,7 +187,8 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 # or use `SUPERSET_SECRET_KEY` environment variable.
 # Use a strong complex alphanumeric string and use a tool to help you generate
 # a sufficiently random sequence, ex: openssl rand -base64 42"
-SECRET_KEY = os.environ.get("SUPERSET_SECRET_KEY") or CHANGE_ME_SECRET_KEY
+# SECRET_KEY = os.environ.get("SUPERSET_SECRET_KEY") or CHANGE_ME_SECRET_KEY
+SECRET_KEY = "f5beec4e1e801f6014e26c288ac8091d35daa8cce1afb2a56163cd8d9a20f28b"
 
 # The SQLAlchemy connection string.
 SQLALCHEMY_DATABASE_URI = (

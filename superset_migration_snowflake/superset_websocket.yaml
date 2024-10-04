@@ -1,0 +1,26 @@
+spec:
+  containers:
+    - name : supersetwebsocket
+      image: /spcs_app/napp/img_repo/superset-websocket:new
+      env:
+        PORT: 8080
+        REDIS_HOST: redis
+        REDIS_PORT: 6379
+        REDIS_SSL: false
+        PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        NODE_VERSION: 16.20.2
+        YARN_VERSION: 1.22.19
+        NODE_ENV: production
+      command:
+      - npm
+      - start
+
+  endpoints:
+    - name: superset-websocket
+      port: 8080
+      public: true
+
+serviceRoles: # Optional list of service roles
+  - name: sfn_service_role
+    endpoints:
+      - superset-websocket

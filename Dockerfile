@@ -125,6 +125,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
       build-essential \
     && pip install --no-cache-dir --upgrade setuptools pip \
     && pip install --no-cache-dir -r requirements/base.txt \
+    && pip install Pillow \
     && apt-get autoremove -yqq --purge build-essential \
     && rm -rf /var/lib/apt/lists/*
 

@@ -1,0 +1,50 @@
+spec:
+  containers:
+    - name : supersetnode
+      image: /spcs_app/napp/img_repo/superset-superset-node:latest
+      env: 
+        SUPERSET_PORT: 8088
+        DATABASE_DIALECT: postgresql
+        DATABASE_USER: superset
+        EXAMPLES_USER: examples
+        POSTGRES_PASSWORD: superset
+        DATABASE_HOST: db
+        SUPERSET_LOAD_EXAMPLES: yes
+        DATABASE_PASSWORD: superset
+        ENABLE_PLAYWRIGHT: false
+        DATABASE_PORT: 5432
+        EXAMPLES_HOST: db
+        POSTGRES_DB: superset
+        CYPRESS_CONFIG: false
+        EXAMPLES_PORT: 5432
+        SUPERSET_SECRET_KEY: TEST_NON_DEV_SECRET
+        DATABASE_DB: superset
+        SCARF_ANALYTICS: 
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+        POSTGRES_USER: superset
+        EXAMPLES_PASSWORD: examples
+        COMPOSE_PROJECT_NAME: superset
+        REDIS_PORT: 6379
+        EXAMPLES_DB: examples
+        BUILD_SUPERSET_FRONTEND_IN_DOCKER: true
+        REDIS_HOST: redis
+        FLASK_DEBUG: true
+        MAPBOX_API_KEY: 
+        SUPERSET_ENV: development
+        PYTHONPATH: /app/pythonpath:/app/docker/pythonpath_dev
+        PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        NODE_VERSION: 20.17.0
+        YARN_VERSION: 1.22.22
+        BUILD_CMD: build"
+      command:
+      - /app/docker/docker-frontend.sh
+
+#   endpoints:
+#     - name: superset-websocket
+#       port: 8080
+#       public: true
+
+# serviceRoles: # Optional list of service roles
+#   - name: sfn_service_role
+#     endpoints:
+#       - superset-websocket

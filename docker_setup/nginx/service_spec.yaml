@@ -2,6 +2,13 @@ spec:
   containers:
     - name: db
       image: /spcs_app/napp/img_repo/db:latest
+      env:
+        SUPERSET_SECRET_KEY: f5beec4e1e801f6014e26c288ac8091d35daa8cce1afb2a56163cd8d9a20f28b
+        EXAMPLES_DB: examples
+        EXAMPLES_HOST: db
+        EXAMPLES_USER: examples
+        EXAMPLES_PASSWORD: examples
+        EXAMPLES_PORT: 5432
     - name : nginx
       image: /spcs_app/napp/img_repo/nginx:latest
     - name: redis

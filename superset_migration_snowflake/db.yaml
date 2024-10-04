@@ -1,0 +1,22 @@
+spec:
+  containers:
+      - name: db
+        image: /spcs_app/napp/img_repo/db:latest
+        env:
+          POSTGRES_DB: superset
+          POSTGRES_USER: superset
+          POSTGRES_PASSWORD: superset
+          EXAMPLES_DB: examples
+          EXAMPLES_HOST: db
+          EXAMPLES_USER: examples
+          EXAMPLES_PASSWORD: examples
+          EXAMPLES_PORT: 5432
+  endpoints:
+    - name: db
+      port: 5432
+      public: true
+
+serviceRoles: # Optional list of service roles
+  - name: sfn_service_role
+    endpoints:
+      - db

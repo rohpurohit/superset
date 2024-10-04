@@ -1,0 +1,20 @@
+spec:
+  containers:
+    - name : redis
+      image: /spcs_app/napp/img_repo/redis:latest
+      env:
+        PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        GOSU_VERSION: 1.17
+        REDIS_VERSION: 7.4.0
+        REDIS_DOWNLOAD_URL: http://download.redis.io/releases/redis-7.4.0.tar.gz
+        REDIS_DOWNLOAD_SHA: 57b47c2c6682636d697dbf5d66d8d495b4e653afc9cd32b7adf9da3e433b8aaf"
+
+  endpoints:
+    - name: redis
+      port: 6379
+      public: true
+
+serviceRoles: # Optional list of service roles
+  - name: sfn_service_role
+    endpoints:
+      - redis

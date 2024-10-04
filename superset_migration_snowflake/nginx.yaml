@@ -1,0 +1,14 @@
+spec:
+  containers:
+    - name : nginx
+      image: /spcs_app/napp/img_repo/nginx:latest
+
+  endpoints:
+    - name: nginx
+      port: 80
+      public: true
+
+serviceRoles: # Optional list of service roles
+  - name: sfn_service_role
+    endpoints:
+      - nginx

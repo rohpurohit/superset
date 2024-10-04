@@ -13,6 +13,8 @@ ENV POSTGRES_DB=${POSTGRES_DB}
 ENV POSTGRES_USER=${POSTGRES_USER}
 ENV POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
+ENV PATH="/usr/lib/postgresql/15/bin:$PATH"
+
 # Copy the custom initialization scripts into the container
 COPY ../docker/docker-entrypoint-initdb.d /docker-entrypoint-initdb.d
 

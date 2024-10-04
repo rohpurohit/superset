@@ -29,6 +29,7 @@ WORKDIR /home/superset-websocket
 
 COPY --from=build /home/superset-websocket/dist ./dist
 COPY package*.json ./
+COPY config.json ./
 
 # Only install production dependencies
 RUN npm ci --omit=dev

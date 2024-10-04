@@ -1,0 +1,50 @@
+spec:
+  containers:
+    - name : superset
+      image: /spcs_app/napp/img_repo/superset:latest
+      env: 
+        EXAMPLES_PASSWORD: examples
+        PYTHONPATH: /app/pythonpath:/app/docker/pythonpath_dev
+        EXAMPLES_HOST: db
+        BUILD_SUPERSET_FRONTEND_IN_DOCKER: true
+        COMPOSE_PROJECT_NAME: superset
+        SUPERSET_ENV: development
+        SUPERSET_PORT: 8088
+        DATABASE_DB: superset
+        MAPBOX_API_KEY: 
+        FLASK_DEBUG: true
+        DATABASE_HOST: db
+        DATABASE_DIALECT: postgresql
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+        REDIS_PORT: 6379
+        CYPRESS_CONFIG: 
+        EXAMPLES_DB: examples
+        EXAMPLES_PORT: 5432
+        DATABASE_PASSWORD: superset
+        SUPERSET_SECRET_KEY: TEST_NON_DEV_SECRET
+        REDIS_HOST: redis
+        ENABLE_PLAYWRIGHT: false
+        EXAMPLES_USER: examples
+        POSTGRES_DB: superset
+        SUPERSET_LOAD_EXAMPLES: yes
+        POSTGRES_PASSWORD: superset
+        DATABASE_PORT: 5432
+        DATABASE_USER: superset
+        POSTGRES_USER: superset
+        PATH: /usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        LANG: C.UTF-8
+        GPG_KEY: A035C8C19219BA821ECEA86B64E628F8D684696D
+        PYTHON_VERSION: 3.10.15
+        LC_ALL: C.UTF-8
+        FLASK_APP: superset.app:create_app()
+        SUPERSET_HOME: /app/superset_home
+
+  endpoints:
+    - name: superset
+      port: 5432
+      public: true
+
+serviceRoles: # Optional list of service roles
+  - name: sfn_service_role
+    endpoints:
+      - superset
